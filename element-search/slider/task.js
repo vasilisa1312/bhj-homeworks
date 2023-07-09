@@ -14,7 +14,7 @@ function changSlideNext() {
 
     arr[sliderCounter].className = "slider__item";
     sliderCounter +=1;
-    if(sliderCounter > 4) {
+    if(sliderCounter > arr.length - 1) {
         sliderCounter = 0;
     }
     arr[sliderCounter].className = "slider__item slider__item_active";
@@ -27,7 +27,7 @@ function changSlidePrev() {
     arr[sliderCounter].className = "slider__item";
     sliderCounter -=1;
     if(sliderCounter < 0) {
-        sliderCounter = 4;
+        sliderCounter = arr.length - 1;
     }
     arr[sliderCounter].className = "slider__item slider__item_active";
 
