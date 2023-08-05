@@ -36,7 +36,6 @@ function removeTask(event) {
   if (!event.target.matches('.task__remove')) return;
 
   const removeItem = event.target.closest('div.task');
-  const index = [...taskList.children].indexOf(removeItem);
 
   removeItem.remove();
 }
