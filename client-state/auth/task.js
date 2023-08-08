@@ -1,59 +1,67 @@
-let welcome = document.querySelector('#welcome');
-window.onload = function() {
-    if(localStorage.getItem('user_id')) {
-        let id = document.querySelector('#user_id');
-        id.textContent = localStorage.getItem('user_id');       
-        welcome.classList.add('welcome_active');
-        signin.classList.remove('signin_active');
-        welcome.insertAdjacentHTML('afterend', '<button class="btn" id="signout__btn">Выйти</button>');
-        let signoutButton = document.querySelector('#signout__btn');
-        signoutButton.addEventListener('click', e => {
-            e.preventDefault();
-            localStorage.clear();
-            location.reload();     
-        })
-}}
+const form = document.querySelector('#signin__form')
+const signInButton = document.querySelector('#signin__btn')
+const logOutButton = document.querySelector('#logoutBtn')
 
-let signin = document.querySelector('#signin');
-signin.classList.add('signin_active');
-
-let login = Array.from(document.getElementsByName('login'))[0];
-let password = Array.from(document.getElementsByName('password'))[0];
-let button = document.querySelector('#signin__btn');
-
-
-button.addEventListener('click', e => {    
-    e.preventDefault();
-    let form = document.querySelector('#signin__form');
-    let formData = new FormData(form);    
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', 'https://students.netoservices.ru/nestjs-backend/auth');
-    xhr.send(formData);
-    xhr.onreadystatechange = function () {
-        if(xhr.readyState === 4) {
-            if(JSON.parse(xhr.responseText).success === false) {
-                alert('Неверный логин/пароль');
-                login.value = '';
-                password.value = '';
-                return false;
-            } else {           
-                localStorage.setItem('user_id', `${JSON.parse(xhr.responseText).user_id}`);  
-                welcome.textContent = `Добро пожаловать, пользователь ${login.value} #${JSON.parse(xhr.responseText).user_id}`;                
-                welcome.classList.add('welcome_active');
-                button.remove();
-                let buttonField = Array.from(document.querySelectorAll('.row'))[2];
-                buttonField.insertAdjacentHTML('beforeend', '<button class="btn" id="signout__btn">Выйти</button>');
-                let signoutButton = document.querySelector('#signout__btn');
-                signoutButton.addEventListener('click', e => {
-                    e.preventDefault();
-                    localStorage.clear();
-                    location.reload();                
-                   
-                })              
-
-            }
-        
-        };
-        };
-
+signInButton.addEventListener('click', (evt) => {
+  evt.preventDefault()
+  requestForm()
 })
+
+
+if (getCookie('user')) changePage(getCookie('user'))
+
+function requestForm() {
+  let xhr = new XMLHttpRequest()
+  xhr.open('POST', 'https://students.netoservices.ru/nestjs-backend/auth')
+  xhr.responseType = 'json'
+  xhr.onload = () => {
+    checkResponse(xhr.response)
+  }
+  xhr.onerror = () => {
+    alert('Ошибка получения данных!')
+  }
+  xhr.send(new FormData(form))
+}
+
+function checkResponse(response) {
+  console.log(response)
+  if (response.success) {
+    changePage(response['user_id'])
+    setCookie('user', response['user_id'])
+  } else {
+    alert('«Неверный логин/пароль»')
+  }
+}
+
+
+function changePage(userId) {
+  document.querySelector('#signin').classList.remove('signin_active')
+  document.querySelector('#user_id').innerText = userId
+  document.querySelector('#welcome').classList.add('welcome_active')
+  logOutButton.addEventListener('click', logOut)
+}
+
+
+function logOut() {
+  document.querySelector('#welcome').classList.remove('welcome_active')
+  document.querySelector('#signin').classList.add('signin_active')
+  setCookie('user', '')
+  form.reset()
+}
+
+
+function setCookie(key, value) {
+  document.cookie = key + '=' + encodeURIComponent(value)
+}
+
+
+
+function getCookie(key) {
+  const data = document.cookie.split('; ')
+  const cookie = data.find((elem) => elem.includes(key))
+  if (cookie) {
+    const value = cookie.split('=')[1]
+    return decodeURIComponent(value)
+  }
+  return null
+}
