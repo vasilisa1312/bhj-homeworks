@@ -1,16 +1,40 @@
-let showSubscribe = function () {
-	if (document.cookie.replace(/(?:(?:^|.*;\s*)subcribeShown\s*\=\s*([^;]*).*$)|^.*$/, "$1") !== "true") {
+const popup = document.querySelector('#subscribe-modal')
+const buttonClosePopup = popup.querySelector('.modal__close')
 
-		let subscribeElement = document.getElementById("subscribe-modal");
-		subscribeElement.classList.add("modal_active");
+buttonClosePopup.addEventListener('click', closePopup)
 
-		subscribeElement.querySelector(".modal__close").addEventListener("click", function (e) {
-			this.closest(".modal").classList.remove("modal_active");
-			document.cookie =
-				"subcribeShown=true; expires=Fri, 31 Dec 9999 23:59:59 GMT";
-		});
+const checkCookie = getCookie('popup');
 
-	}
-};
+if (!checkCookie || checkCookie === 'false') {
+  setCookie('popup', false)
+  setTimeout(() => {
+    popup.classList.add('modal_active')
+  }, 2000)
+}
 
-showSubscribe();
+function closePopup() {
+  popup.classList.remove('modal_active')
+  setCookie('popup', true)
+}
+
+
+
+function getCookie(key) {
+  const data = document.cookie.split('; ')
+  const cookie = data.find((elem) => elem.includes(key))
+  if (cookie) {
+    const value = cookie.split('=')[1]
+    return decodeURIComponent(value)
+  }
+  return null
+}
+
+
+
+function setCookie(key, value) {
+  document.cookie = key + '=' + encodeURIComponent(value)
+}
+
+
+//Удаление cookie
+// document.cookie = `popup=; expires=${new Date(2020, 0, 1)}`
