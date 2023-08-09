@@ -2,13 +2,18 @@ const form = document.querySelector('#signin__form')
 const signInButton = document.querySelector('#signin__btn')
 const logOutButton = document.querySelector('#logoutBtn')
 
+window.onload = function() {
+  if(localStorage.getItem('user')) {
+    changePage(localStorage.getItem('user'))
+  }
+}
+
 signInButton.addEventListener('click', (evt) => {
   evt.preventDefault()
   requestForm()
 })
 
 
-if (getCookie('user')) changePage(getCookie('user'))
 
 function requestForm() {
   let xhr = new XMLHttpRequest()
@@ -27,7 +32,7 @@ function checkResponse(response) {
   console.log(response)
   if (response.success) {
     changePage(response['user_id'])
-    setCookie('user', response['user_id'])
+    localStorage.setItem('user', response['user_id'])
   } else {
     alert('«Неверный логин/пароль»')
   }
@@ -45,23 +50,6 @@ function changePage(userId) {
 function logOut() {
   document.querySelector('#welcome').classList.remove('welcome_active')
   document.querySelector('#signin').classList.add('signin_active')
-  setCookie('user', '')
+  localStorage.clear();
   form.reset()
-}
-
-
-function setCookie(key, value) {
-  document.cookie = key + '=' + encodeURIComponent(value)
-}
-
-
-
-function getCookie(key) {
-  const data = document.cookie.split('; ')
-  const cookie = data.find((elem) => elem.includes(key))
-  if (cookie) {
-    const value = cookie.split('=')[1]
-    return decodeURIComponent(value)
-  }
-  return null
 }
